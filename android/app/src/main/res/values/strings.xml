@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mimbula Telemetry</string>
+    <string name="welcome_title">Mimbula Minerals</string>
+    <string name="welcome_subtitle">Processing &amp; Leach Pad Department</string>
+</resources>

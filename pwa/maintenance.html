@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calibration Maintenance | Mimbula Minerals</title>
+  <style>
+    :root {
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --teal-400: #2dd4bf;
+      --teal-500: #14b8a6;
+      --amber-500: #f59e0b;
+    }
+    body {
+      background-color: var(--slate-900);
+      color: #ffffff;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      padding: 2rem;
+      border-radius: 16px;
+      background: rgba(30, 41, 59, 0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .emoji {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.8; }
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      margin: 0 0 0.5rem 0;
+      background: linear-gradient(to right, #ffffff, var(--teal-400));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p {
+      color: #94a3b8;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0 0 2rem 0;
+    }
+    .status-badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--amber-500);
+      background: rgba(245, 158, 11, 0.1);
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="emoji">⚙️</div>
+    <div class="status-badge">● DCS HYDRAULIC RE-CALIBRATION IN PROGRESS</div>
+    <h1>System Maintenance</h1>
+    <p>
+      The hydrometallurgical sensor loop, flow spreadsheet aggregates, and FOHL return lines are undergoing routine calibration updates to ensure 100% telemetry accuracy.
+      <br><br>
+      We will return shortly. Thank you for your patience.
+    </p>
+  </div>
+</body>
+</html>

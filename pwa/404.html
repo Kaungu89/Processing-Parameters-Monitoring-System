@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Telemetry Out of Bounds | Mimbula Minerals</title>
+  <style>
+    :root {
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --teal-400: #2dd4bf;
+      --teal-500: #14b8a6;
+      --emerald-500: #10b981;
+    }
+    body {
+      background-color: var(--slate-900);
+      color: #ffffff;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      padding: 2rem;
+      border-radius: 16px;
+      background: rgba(30, 41, 59, 0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .emoji {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      margin: 0 0 0.5rem 0;
+      background: linear-gradient(to right, #ffffff, var(--teal-400));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p {
+      color: #94a3b8;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0 0 2rem 0;
+    }
+    .code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--teal-400);
+      background: rgba(20, 184, 166, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid rgba(20, 184, 166, 0.2);
+    }
+    .btn {
+      display: inline-block;
+      background: var(--teal-500);
+      color: var(--slate-900);
+      text-decoration: none;
+      font-weight: 700;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      font-size: 0.875rem;
+    }
+    .btn:hover {
+      background: var(--teal-400);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="emoji">🛰️</div>
+    <h1>Telemetry Signal Lost</h1>
+    <p>
+      The specific hydraulic sensor coordinate or process directory you searched for is out of active heap bounds or offline. 
+      <br><br>
+      <span class="code">ERROR_CODE: 404_TELEMETRY_DISCONNECT</span>
+    </p>
+    <a href="index.html" class="btn">RECONNECT COCKPIT</a>
+  </div>
+</body>
+</html>

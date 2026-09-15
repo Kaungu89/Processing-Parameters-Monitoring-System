@@ -1,0 +1,26 @@
+{
+  "name": "Mimbula Minerals Telemetry PWA",
+  "short_name": "Mimbula PWA",
+  "description": "Enterprise-grade real-time process telemetry client and DCS controller for Mimbula Minerals Limited.",
+  "start_url": "/pwa/index.html",
+  "scope": "/pwa/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#14b8a6",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

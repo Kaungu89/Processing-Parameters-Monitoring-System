@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mimbula Minerals Telemetry Cockpit PWA</title>
+  
+  <!-- Progressive Web App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#14b8a6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mimbula PWA">
+  
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Tailwind CSS Playground CDN for rapid utilities support -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen">
+
+  <!-- Cinematic Loading Screen -->
+  <div id="loader-screen">
+    <div class="loader-container">
+      <div class="flex justify-center">
+        <img class="loader-logo filter drop-shadow-[0_0_15px_rgba(20,184,166,0.6)]" src="assets/logo.svg" alt="Mimbula Logo">
+      </div>
+      <div class="loader-progress-bg mt-6">
+        <div id="loader-progress" class="loader-progress-bar"></div>
+      </div>
+      <div id="loader-status-text" class="loader-text mt-2 text-teal-400 font-mono text-xs">Connecting SCADA Link...</div>
+      <div id="loader-status" class="loader-status text-slate-400 text-xs mt-1">Initializing...</div>
+    </div>
+  </div>
+
+  <div class="app-container">
+
+    <!-- Sticky Glassmorphic Header -->
+    <header class="sticky-header border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
+      <div class="nav-wrapper max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="#" class="brand-section flex items-center gap-3">
+          <img class="brand-logo-img w-9 h-9" src="assets/logo.svg" alt="Mimbula Logo">
+          <div class="brand-info">
+            <h1 class="brand-title text-base font-extrabold tracking-tight text-white">MIMBULA MINERALS</h1>
+            <span class="brand-subtitle font-mono text-[9px] text-teal-400 font-bold tracking-wider">PROCESSING DEPARTMENT</span>
+          </div>
+        </a>
+
+        <div class="nav-controls flex items-center gap-4">
+          <!-- Live Central Africa Time Clock -->
+          <div class="clock-panel hidden md:flex items-center gap-2 bg-slate-950/60 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300 font-mono text-xs">
+            <span class="live-dot"></span>
+            <span id="live-cat-clock">Clock Syncing...</span>
+          </div>
+
+          <!-- Light/Dark Mode Toggle -->
+          <button id="theme-toggle" class="theme-toggle-btn text-slate-300 hover:text-white border border-slate-800 bg-slate-900 hover:bg-slate-800 p-2 rounded-lg">
+            <!-- Sun Icon -->
+            <svg class="sun-icon w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"/></svg>
+            <!-- Moon Icon -->
+            <svg class="moon-icon w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="dashboard-grid max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-12 gap-6">
+
+      <!-- Alarms Banner Alert (Dynamic) -->
+      <div id="alarms-banner-box" class="alarm-banner col-span-12 flex items-center gap-4 bg-rose-950/20 border border-rose-500 p-4 rounded-xl shadow-lg">
+        <span class="alarm-icon text-2xl">⚠️</span>
+        <div class="alarm-body flex-1">
+          <h4 id="alarms-count" class="alarm-title text-xs font-bold font-mono text-rose-500 tracking-wider">CRITICAL ALARM</h4>
+          <p id="alarms-detail" class="alarm-desc text-slate-200 text-sm">Flow rates currently deviate from nominal safety ranges.</p>
+        </div>
+        <button onclick="speakActiveAlarms()" class="alarm-speak-btn bg-rose-600 hover:bg-rose-500 px-3 py-1.5 rounded-lg text-white font-mono text-xs font-bold transition">
+          SPEAK ALARMS
+        </button>
+      </div>
+
+      <!-- Left Bento Column: Schematic and gauges -->
+      <div class="col-span-12 lg:col-span-5 flex flex-col gap-6">
+
+        <!-- Flow Schematic Schematic Map -->
+        <section class="bento-card bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden shadow-lg">
+          <div class="card-header flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <h3 class="card-title text-sm font-bold text-slate-200 flex items-center gap-2">
+              <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 6H16"/></svg>
+              PROCESS FLOW CIRCUITS
+            </h3>
+            <span class="card-badge badge-success">Live SCADA</span>
+          </div>
+
+          <!-- Animated Recirculation Loop Schematic -->
+          <div class="relative bg-slate-950/90 rounded-xl p-3 border border-slate-900">
+            <svg class="circuit-schematic-svg w-full h-auto" viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg">
+              <!-- Reagents Tanks (FOHL Plant Outlet) -->
+              <rect x="20" y="60" width="60" height="40" rx="4" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
+              <text x="50" y="84" fill="#94a3b8" font-family="monospace" font-size="8" text-anchor="middle" font-weight="bold">FOHL PLANT</text>
+              
+              <!-- Feed pipes split lines -->
+              <path d="M 80,80 L 140,80 L 140,40 L 220,40" fill="none" stroke="#475569" stroke-width="2" />
+              <path d="M 140,80 L 220,80" fill="none" stroke="#475569" stroke-width="2" />
+              <path d="M 140,80 L 140,120 L 220,120" fill="none" stroke="#475569" stroke-width="2" />
+              
+              <!-- Active Recirculating Pipe Flow Overlay (Animated) -->
+              <path id="recirc-pipe-flow" d="M 80,80 L 140,80 L 140,40 L 220,40 M 140,80 L 220,80 M 140,80 L 140,120 L 220,120" fill="none" stroke="#14b8a6" stroke-width="2" class="pipe-line" />
+
+              <!-- Leach Pad Recipients (LP1, LP2, LP3 Reciprocal Feeders) -->
+              <g transform="translate(220, 25)">
+                <rect width="60" height="25" rx="3" fill="#022c22" stroke="#059669" stroke-width="1.2" />
+                <text x="30" y="16" fill="#10b981" font-family="monospace" font-size="8" text-anchor="middle" font-weight="bold">LP1 REFEED</text>
+              </g>
+              <g transform="translate(220, 65)">
+                <rect width="60" height="25" rx="3" fill="#0f172a" stroke="#334155" stroke-width="1.2" />
+                <text x="30" y="16" fill="#94a3b8" font-family="monospace" font-size="8" text-anchor="middle" font-weight="bold">LP2 STANDBY</text>
+              </g>
+              <g transform="translate(220, 105)">
+                <rect width="60" height="25" rx="3" fill="#0f172a" stroke="#334155" stroke-width="1.2" />
+                <text x="30" y="16" fill="#94a3b8" font-family="monospace" font-size="8" text-anchor="middle" font-weight="bold">LP3 STANDBY</text>
+              </g>
+
+              <!-- Return flow lines going back to FOHL -->
+              <path d="M 280,37 L 340,37 L 340,150 L 50,150 L 50,100" fill="none" stroke="#059669" stroke-width="1.5" stroke-dasharray="3,3" />
+            </svg>
+            <div class="mt-2 text-[10px] font-mono text-slate-400 text-center">
+              *Visualizes active loop: LP1 feeds FOHL, FOHL feeds LP1, LP2, and LP3 recirc.
+            </div>
+          </div>
+        </section>
+
+        <!-- Process Pond Levels cylinders -->
+        <section class="bento-card bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-lg">
+          <div class="card-header flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <h3 class="card-title text-sm font-bold text-slate-200 flex items-center gap-2">
+              <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+              RESERVOIR HYDRAULIC LEVELS
+            </h3>
+            <span class="card-badge badge-info">Levels</span>
+          </div>
+
+          <div class="pond-gauges-container flex justify-between gap-4">
+            <!-- PLS -->
+            <div class="pond-gauge-column flex flex-col items-center">
+              <div class="cylinder-reservoir">
+                <div id="cylinder-pls-liquid" class="cylinder-liquid"></div>
+                <span id="cylinder-pls-label" class="cylinder-label">0%</span>
+              </div>
+              <span class="pond-title-label mt-2 text-[10px] font-bold font-mono text-slate-400">PLS Pond</span>
+            </div>
+            <!-- ILS -->
+            <div class="pond-gauge-column flex flex-col items-center">
+              <div class="cylinder-reservoir">
+                <div id="cylinder-ils-liquid" class="cylinder-liquid text-amber-400"></div>
+                <span id="cylinder-ils-label" class="cylinder-label">0%</span>
+              </div>
+              <span class="pond-title-label mt-2 text-[10px] font-bold font-mono text-slate-400">ILS Pond</span>
+            </div>
+            <!-- RAF -->
+            <div class="pond-gauge-column flex flex-col items-center">
+              <div class="cylinder-reservoir">
+                <div id="cylinder-raf-liquid" class="cylinder-liquid"></div>
+                <span id="cylinder-raf-label" class="cylinder-label">0%</span>
+              </div>
+              <span class="pond-title-label mt-2 text-[10px] font-bold font-mono text-slate-400">RAF Pond</span>
+            </div>
+            <!-- ACID -->
+            <div class="pond-gauge-column flex flex-col items-center">
+              <div class="cylinder-reservoir">
+                <div id="cylinder-acid-liquid" class="cylinder-liquid"></div>
+                <span id="cylinder-acid-label" class="cylinder-label">0%</span>
+              </div>
+              <span class="pond-title-label mt-2 text-[10px] font-bold font-mono text-slate-400">Acid Tank</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- DCS Quick Action injectors -->
+        <section class="bento-card bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-lg">
+          <div class="card-header flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <h3 class="card-title text-sm font-bold text-slate-200 flex items-center gap-2">
+              <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+              DCS SANDBOX CALIBRATIONS
+            </h3>
+            <span class="card-badge badge-warning">Sim Injector</span>
+          </div>
+
+          <div class="scenarios-grid flex flex-col gap-2.5">
+            <button onclick="injectScenario('nominal')" class="scenario-btn w-full">
+              <span class="scenario-emoji">🟢</span>
+              <div class="scenario-info">
+                <span class="scenario-name">Nominal Steady-State</span>
+                <span class="scenario-desc text-xs text-slate-400">Irrigates LP4 to LP12 at stable rates.</span>
+              </div>
+            </button>
+            <button onclick="injectScenario('storm')" class="scenario-btn w-full">
+              <span class="scenario-emoji">⛈️</span>
+              <div class="scenario-info">
+                <span class="scenario-name">Storm Runoff Surge</span>
+                <span class="scenario-desc text-xs text-slate-400">Monsoon flood levels; recirc active.</span>
+              </div>
+            </button>
+            <button onclick="injectScenario('outage')" class="scenario-btn w-full">
+              <span class="scenario-emoji">🔴</span>
+              <div class="scenario-info">
+                <span class="scenario-name">Acid Stockpile Crisis</span>
+                <span class="scenario-desc text-xs text-slate-400">Sulfuric acid reservoirs critical drop.</span>
+              </div>
+            </button>
+            <button onclick="injectScenario('blockage')" class="scenario-btn w-full">
+              <span class="scenario-emoji">⚠️</span>
+              <div class="scenario-info">
+                <span class="scenario-name">Localized Valve Blockage</span>
+                <span class="scenario-desc text-xs text-slate-400">Line LP4/LP5 flow drops to zero.</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- scrolling terminal window of SCADA outputs -->
+          <div id="terminal-console-box" class="terminal-console mt-4 max-h-[120px] overflow-y-auto">
+            <div class="terminal-line"><span class="terminal-time">[00:00:00]</span> Establishing SCADA pipeline logs...</div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Right Bento Column: Flowsheet Spreadsheet table -->
+      <div class="col-span-12 lg:col-span-7 flex flex-col gap-6">
+
+        <!-- Real-Time Interactive Flow Sheet Spreadsheet -->
+        <section class="bento-card bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-lg col-span-12">
+          <div class="card-header flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <h3 class="card-title text-sm font-bold text-slate-200 flex items-center gap-2">
+              <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              LEACH PAD FLOW SHEET SPREADSHEET
+            </h3>
+            <span class="card-badge badge-success">Interactive Cells</span>
+          </div>
+
+          <!-- Aggregate Status Dashboard widgets -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+              <div class="text-[10px] font-mono text-slate-400 uppercase tracking-wider font-bold">Active Irrigators</div>
+              <div id="stat-active-pads" class="text-xl font-extrabold text-white font-mono mt-0.5">0 / 12</div>
+            </div>
+            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+              <div class="text-[10px] font-mono text-slate-400 uppercase tracking-wider font-bold">Aggregate Active Flow</div>
+              <div id="stat-aggregate-flow" class="text-xl font-extrabold text-teal-400 font-mono mt-0.5">0.00 m³/h</div>
+            </div>
+            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+              <div class="text-[10px] font-mono text-slate-400 uppercase tracking-wider font-bold">Blending Flow Ratio</div>
+              <div class="flex items-center justify-between mt-0.5">
+                <span id="stat-chemical-ratio" class="text-xl font-extrabold text-amber-400 font-mono">0.00</span>
+                <span id="chemical-ratio-badge" class="card-badge badge-success text-[8px]">Normal</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[10px] font-mono text-slate-400 mb-3" id="chemical-ratio-message">
+            Blending ratio across active pads LP1 to LP12. Target is 0.50 to 2.00 (RAF vs ILS ratio).
+          </div>
+
+          <!-- Table Container -->
+          <div class="spreadsheet-container overflow-x-auto">
+            <table class="flow-sheet-table w-full">
+              <thead>
+                <tr>
+                  <th>Pad ID</th>
+                  <th>Feed Source</th>
+                  <th class="text-right">Min Rate (m³/h)</th>
+                  <th class="text-right">Max Rate (m³/h)</th>
+                  <th class="text-center">Wetting Flux (L/h/m²)</th>
+                  <th>Status</th>
+                  <th class="text-center">Valid</th>
+                </tr>
+              </thead>
+              <tbody id="flow-sheet-tbody">
+                <!-- Javascript populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Co-Pilot report generator and shift summary -->
+        <section class="bento-card bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-lg">
+          <div class="card-header flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <h3 class="card-title text-sm font-bold text-slate-200 flex items-center gap-2">
+              <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              GEMINI PROCESS CO-PILOT
+            </h3>
+            <span class="card-badge badge-info">Gemini 3.5</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="input-label">Operator Notes & Walk-About Observations</label>
+              <textarea id="field-notes" class="glass-textarea" placeholder="Describe heap status, pipe leaks, pH meter values or active pump vibrations..."></textarea>
+              
+              <!-- Web API webcam visual trigger and coordinates track -->
+              <div class="flex gap-2 mt-3">
+                <button onclick="trackWalkCoordinates()" class="secondary-btn text-xs py-1.5 flex-1 justify-center flex items-center gap-1.5">
+                  📍 Locate Operator
+                </button>
+                <button onclick="openCameraModal()" class="secondary-btn text-xs py-1.5 flex-1 justify-center flex items-center gap-1.5">
+                  📸 Attachment
+                </button>
+              </div>
+              <div id="walk-coords-panel" class="text-[10px] font-mono text-slate-400 mt-1 text-center">Lat: -- , Lon: --</div>
+              
+              <!-- Photo snapshot preview card -->
+              <div class="flex justify-center">
+                <img id="snapshot-preview" class="snapshot-preview-img" src="#" alt="Camera Preview">
+              </div>
+            </div>
+
+            <div>
+              <label class="input-label">Private API Key (Optional)</label>
+              <input type="password" id="copilot-api-key" class="glass-input mb-3" placeholder="Paste your GEMINI_API_KEY if offline...">
+              
+              <button onclick="triggerAiReport()" class="primary-btn w-full py-2.5 mt-2">
+                ⚡ Compile Smart Report
+              </button>
+
+              <div id="ai-output-box" class="output-panel mt-4 h-[100px] overflow-y-auto bg-slate-950/60 p-3 rounded-lg border border-slate-900 text-xs text-slate-300">
+                AI report summaries will compile here.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Offline Shift Logs archives -->
+        <section class="bento-card bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-lg">
+          <div class="card-header flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <h3 class="card-title text-sm font-bold text-slate-200 flex items-center gap-2">
+              <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+              OFFLINE SHIFT ARCHIVES
+            </h3>
+            <span class="card-badge badge-info">IndexedDB</span>
+          </div>
+
+          <!-- Action buttons for logs exports -->
+          <div class="flex gap-2.5 mb-4">
+            <button onclick="saveShiftLog()" class="primary-btn flex-1 py-2">
+              💾 Record Shift Entry
+            </button>
+            <button onclick="exportCSVReport()" class="secondary-btn py-2">
+              📊 Export CSV
+            </button>
+            <button onclick="exportJSONReport()" class="secondary-btn py-2">
+              📁 Export JSON
+            </button>
+            <button onclick="clearLocalDB()" class="secondary-btn text-rose-500 hover:text-rose-400 border-rose-500/20 py-2">
+              🗑️ Wipe
+            </button>
+          </div>
+
+          <div id="archive-history-list" class="archive-list flex flex-col gap-2 max-h-[160px] overflow-y-auto">
+            <!-- logs populated here -->
+          </div>
+        </section>
+
+      </div>
+
+    </main>
+
+    <!-- Footer branding card -->
+    <footer class="mt-auto border-t border-slate-900 py-6 bg-slate-950 text-center">
+      <div class="text-[10px] font-mono text-slate-500">
+        MIMBULA MINERALS TELEMETRY CONSOLE • PRODUCTION-READY PWA EDITION • DEVELOPED BY MIGUEL KAUNGU
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Camera Modal Overlay -->
+  <div id="camera-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="text-sm font-bold text-slate-100 font-mono">VALVE VISUAL MONITOR</h4>
+        <button onclick="closeCameraModal()" class="modal-close-btn">&times;</button>
+      </div>
+      <video id="camera-stream" class="video-capture-element" autoplay playsinline></video>
+      <div class="flex gap-2 mt-4">
+        <button onclick="captureSnapshot()" class="primary-btn flex-1 py-2 font-mono text-xs">
+          CAPTURE PICTURE
+        </button>
+        <button onclick="closeCameraModal()" class="secondary-btn py-2 font-mono text-xs">
+          CANCEL
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time UI Toasts Portal -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>

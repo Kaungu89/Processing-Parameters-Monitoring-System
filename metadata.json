@@ -1,0 +1,6 @@
+{
+  "name": "Mimbula Minerals Leach Pad Telemetry",
+  "description": "Professional real-time telemetry data entry and smart operational validation system for MIMBULA MINERALS LIMITED (Processing Department), developed by Miguel Kaungu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

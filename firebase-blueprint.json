@@ -1,0 +1,133 @@
+{
+  "entities": {
+    "ShiftRecord": {
+      "title": "ShiftRecord",
+      "description": "Hydrometallurgical plant operational shift report and telemetry snapshot",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the shift record",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Auth UID of the operator who created the shift record",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the shift record in YYYY-MM-DD format",
+          "maxLength": 32
+        },
+        "time": {
+          "type": "string",
+          "description": "Time of shift handover in HH:MM format",
+          "maxLength": 16
+        },
+        "operatorEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Official company email of the shift operator",
+          "maxLength": 256
+        },
+        "operatorName": {
+          "type": "string",
+          "description": "Full name of the logging plant operator",
+          "maxLength": 128
+        },
+        "employmentNumber": {
+          "type": "string",
+          "description": "Site employment / badge number",
+          "maxLength": 64
+        },
+        "notes": {
+          "type": "string",
+          "description": "Shift handover logs, process anomalies, and remarks",
+          "maxLength": 5000
+        },
+        "pads": {
+          "type": "array",
+          "description": "List of leach pad telemetry flow readings"
+        },
+        "ponds": {
+          "type": "object",
+          "description": "Pond telemetry readings including RAF, ILS, Crasher, and Main Line"
+        },
+        "extraTelemetry": {
+          "type": "object",
+          "description": "Electrowinning, acid reserve tank, and hydraulic loop telemetry"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of document creation",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last document update",
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "date",
+        "time",
+        "operatorEmail",
+        "pads",
+        "ponds"
+      ]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Operator profile information and shift preferences",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID matching the document ID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Verified Google account email address",
+          "maxLength": 256
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Operator full display name",
+          "maxLength": 128
+        },
+        "employmentNumber": {
+          "type": "string",
+          "description": "Mine site staff employee number",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of profile update",
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "userId",
+        "email"
+      ]
+    }
+  },
+  "firestore": {
+    "/shifts/{shiftId}": {
+      "schema": "ShiftRecord",
+      "description": "Shift telemetry and metallurgical operations handover records"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Operator personal profile and plant configuration"
+    }
+  }
+}
